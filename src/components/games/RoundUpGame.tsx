@@ -19,23 +19,14 @@ const generateProblem = (level: number): RoundUpProblem => {
   const base = Math.floor(Math.random() * (target - 50)) + 10;
   const remainder = target - base;
   
-  // Split remainder into 2-3 numbers
-  const numCount = Math.random() > 0.5 ? 2 : 3;
-  const numbers: number[] = [];
-  let remaining = remainder;
-  
-  for (let i = 0; i < numCount - 1; i++) {
-    const max = Math.min(remaining - (numCount - i - 1), Math.floor(remaining / 2));
-    const num = Math.floor(Math.random() * max) + 1;
-    numbers.push(num);
-    remaining -= num;
-  }
-  numbers.push(remaining);
+  // Always split into exactly 2 numbers for clarity (total 3 numbers including base)
+  const split1 = Math.floor(Math.random() * (remainder - 1)) + 1;
+  const split2 = remainder - split1;
   
   return {
     target,
-    numbers: [base, ...numbers].sort(() => Math.random() - 0.5),
-    solution: [base, ...numbers],
+    numbers: [base, split1, split2].sort(() => Math.random() - 0.5),
+    solution: [base, split1, split2],
     hint: `找出可以凑成 ${target} 的数字`,
   };
 };
@@ -170,13 +161,13 @@ export default function RoundUpGame({ level, onComplete, onExit }: RoundUpGamePr
       </AnimatePresence>
 
       {/* Number Grid */}
-      <div className="flex-1 flex items-center justify-center">
-        <div className="grid grid-cols-3 gap-4">
+      <div className="flex-1 flex items-center justify-center px-4">
+        <div className={`grid gap-4 ${problem.numbers.length <= 3 ? 'grid-cols-3' : problem.numbers.length === 4 ? 'grid-cols-2' : 'grid-cols-3'}`}>
           {problem.numbers.map((num, index) => (
             <motion.button
               key={`${index}-${num}`}
               onClick={() => handleNumberClick(num, index)}
-              className={`touch-btn w-20 h-20 rounded-xl text-2xl font-bold transition-all duration-300 ${
+              className={`touch-btn w-24 h-24 sm:w-20 sm:h-20 rounded-xl text-3xl sm:text-2xl font-bold transition-all duration-300 ${
                 selected.includes(index)
                   ? 'bg-[#ffd700] text-[#1a3a3a] shadow-lg scale-110'
                   : 'bg-[#2f4f4f] text-[#ffd700] border-2 border-[#8b6914]'
